@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Textiles del Valle · Simulador de decisiones</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--bg:#f6f4ef;--card:#fff;--tx:#1d2a2a;--mu:#5f6b6b;--ac:#0f6b62;--ac2:#e8f3f1;--bd:#e0dcd2;--ok:#1b7f4b;--ko:#b3322d;--okb:#e3f4ea;--kob:#fbe7e5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#121817;--card:#1b2423;--tx:#e8efee;--mu:#9fb0ae;--ac:#4fc3b4;--ac2:#1f3532;--bd:#2e3b39;--ok:#5fd394;--ko:#ff8f88;--okb:#173325;--kob:#3a1f1d}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px 14px 40px}
+header{background:linear-gradient(135deg,#0f6b62,#1b4d6b);color:#fff;border-radius:16px;padding:22px 18px;margin-bottom:14px}
+header small{opacity:.8;letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+h1{margin:4px 0 6px;font-size:24px;line-height:1.15}header p{margin:0;opacity:.9;font-size:14px}
+h2{font-size:16px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:12px;color:var(--mu);margin-bottom:3px}
+input,select{width:100%;font:inherit;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx)}
+input[type=range]{padding:0;accent-color:var(--ac)}
+.v{font-weight:600;color:var(--tx)}
+.kp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.k{background:var(--ac2);border-radius:12px;padding:10px 12px}
+.k b{display:block;font-size:20px;line-height:1.2}.k span{font-size:12px;color:var(--mu)}
+.ban{border-radius:12px;padding:12px 14px;font-weight:600}
+.ban.ok{background:var(--okb);color:var(--ok)}.ban.ko{background:var(--kob);color:var(--ko)}
+.ban small{display:block;font-weight:400;color:var(--tx);margin-top:4px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}th{color:var(--mu);font-weight:600;font-size:12px}
+tr.hl td{background:var(--ac2);font-weight:600}
+.neg{color:var(--ko)}.pos{color:var(--ok)}
+.hist{display:flex;align-items:flex-end;gap:2px;height:110px;margin-top:6px}
+.hist div{flex:1;background:var(--ac);border-radius:3px 3px 0 0;min-height:1px}.hist div.n{background:var(--ko)}
+.ax{display:flex;justify-content:space-between;font-size:11px;color:var(--mu)}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 14px;background:var(--ac);color:#fff;cursor:pointer;width:100%;margin-top:10px}
+button.s{background:var(--ac2);color:var(--ac)}
+.n{font-size:12px;color:var(--mu)}ul{margin:6px 0 0;padding-left:18px}
+svg{width:100%;height:auto;display:block}
+</style></head><body><main>
+<header><small>Mini Reto II · Hilos de incertidumbre · Equipo financiero</small>
+<h1>Textiles del Valle<br>Simulador de decisiones</h1>
+<p>¿Cuánto producir el próximo trimestre y conviene aceptar el contrato de uniformes escolares?</p></header>
+
+<section class="card"><h2>1 · Datos de entrada</h2>
+<div class="g">
+<div><label>Camisetas a producir (trimestre)</label><input id="xc" type="number" value="1590" step="30"></div>
+<div><label>Pantalones a producir (trimestre)</label><input id="xp" type="number" value="990" step="30"></div>
+<div><label>Escenario (caja y tabla)</label><select id="esc"><option value="0">Pesimista</option><option value="1" selected>Base</option><option value="2">Optimista</option></select></div>
+<div><label>Tasa de financiamiento anual</label><select id="tasa"><option value="0.0918">9.18% · PYMES BCE</option><option value="0.12" selected>12% · bancos pymes</option><option value="0.181">18.1% · microcrédito</option><option value="0.2085">20.85% · microcrédito simple</option></select></div>
+<div><label>Precio del contrato: <span class="v" id="pv"></span> por conjunto</label><input id="price" type="range" min="20" max="50" step="0.5" value="28"></div>
+<div><label>Probabilidad de ganar: <span class="v" id="wv"></span></label><input id="win" type="range" min="5" max="75" step="5" value="25"></div>
+<div><label>Anticipo del contrato: <span class="v" id="av"></span></label><input id="ant" type="range" min="0" max="100" step="10" value="0"></div>
+<div><label>Factor de costos por algodón</label><input id="alg" type="number" value="1.044" step="0.01" min="0.9" max="1.3"></div>
+</div>
+<div class="n" style="margin-top:8px">Demanda, precios, costos y recursos usan los rangos del caso (mínimo · probable · máximo). Costos fijos $18,000 por trimestre.</div>
+<button id="go">▶ Simular otros 3,000 trimestres</button></section>
+
+<section class="card"><h2>2 · Resultado del plan</h2>
+<div class="kp" id="kp"></div>
+<div class="n" style="margin-top:10px">Distribución de la utilidad trimestral (3,000 simulaciones)</div>
+<div class="hist" id="hist"></div><div class="ax"><span id="h0"></span><span id="h1"></span></div></section>
+
+<section class="card"><h2>3 · ¿Conviene el contrato escolar?</h2>
+<div id="ban"></div>
+<div class="tw" style="margin-top:10px"><table id="ct"></table></div></section>
+
+<section class="card"><h2>4 · Caja y financiamiento</h2>
+<div id="cashk" class="kp"></div>
+<svg id="cash" viewBox="0 0 340 150" role="img" aria-label="Caja acumulada por mes"></svg>
+<div class="n">Línea verde: sin contrato · línea roja: con contrato (si se gana, 450 conjuntos). Cobro del contrato en el mes 6.</div></section>
+
+<section class="card"><h2>5 · Escenarios y planes</h2>
+<div class="tw"><table id="sc"></table></div>
+<div class="tw" style="margin-top:12px"><table id="pl"></table></div></section>
+
+<section class="card"><h2>Recomendación</h2><div id="rec"></div></section>
+<p class="n">Simulación en tu navegador con distribuciones triangulares, basada en el libro Textiles_del_Valle_Excel_v5_entrega. Los resultados varían un poco entre corridas, como al presionar F9 en Excel.</p>
+</main>
+<script>
+const $=i=>document.getElementById(i),N=3000,EX=0.5028;
+const R={tela:[5400,6300,7200],conf:[2700,3300,3900],acab:[1050,1350,1650],prod:[.9,.95,1],Pc:[18,21,24],Pp:[30,35,40],Vc:[8,10,12],Vp:[15,18.5,22],Dc:[1200,1560,2100],Dp:[750,990,1350]};
+const KS=Object.keys(R);let seed=7;
+function rng(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const tri=(u,a,m,b)=>{const f=(m-a)/(b-a);return u<f?a+Math.sqrt(u*(b-a)*(m-a)):b-Math.sqrt((1-u)*(b-a)*(b-m))};
+function draws(f){const r=rng(seed),a=[];for(let i=0;i<N;i++){const s={};for(const k of KS){let v=tri(r(),...R[k]);if(k[0]=='V')v*=f;s[k]=v}s.w=r();s.n=300+300*r();a.push(s)}return a}
+function scen(i,f){const s={};for(const k of KS){s[k]=(k[0]=='V')?R[k][2-i]*f:R[k][i]}return s}
+function ev(s,xc,xp,c){let T=s.tela,C=s.conf*s.prod,A=s.acab*s.prod,n=0;
+ if(c&&c.win){n=c.n;T-=n*4;C-=n*2;A-=n*.8}
+ const q=(a,b)=>b>0?Math.max(0,a)/b:1;
+ const al=Math.min(1,q(T,1.5*xc+2.5*xp),q(C,.8*xc+1.2*xp),q(A,.3*xc+.5*xp));
+ const pc=al*xc,pp=al*xp,sc=Math.min(pc,s.Dc),sp=Math.min(pp,s.Dp);
+ const rev=s.Pc*sc+s.Pp*sp,salv=.5*(s.Vc*(pc-sc)+s.Vp*(pp-sp)),vr=s.Vc*pc+s.Vp*pp,ex=EX*(.8*pc+1.2*pp);
+ let u=rev+salv-vr-ex-18000;
+ if(c){if(c.win)u+=n*(c.price*c.df-s.Vc-s.Vp-EX*2);u-=200}
+ return{u,rev,salv,vr,ex,n}}
+function st(u){const a=[...u].sort((x,y)=>x-y),n=a.length,k=Math.floor(n*.1);
+ return{m:a.reduce((p,c)=>p+c)/n,p5:a[Math.floor(n*.05)],cv:a.slice(0,k).reduce((p,c)=>p+c)/k,pl:a.filter(x=>x<0).length/n,a}}
+const $$=x=>(x<0?'−$':'$')+Math.abs(Math.round(x)).toLocaleString('en-US'),pc=x=>(x*100).toFixed(1)+'%',cl=x=>x<0?'neg':'pos';
+function cash(s,xc,xp,w,ant,price){const n=w?450:0,e=ev(s,xc,xp,w?{win:1,n,price,df:1}:null),cc=n*(s.Vc+s.Vp+EX*2);
+ let cum=0,out=[],prev=0;
+ for(let m=1;m<=6;m++){let f=0;
+  if(m<=3){f+=e.rev/3*.8-(e.vr+e.ex+cc)/3-6000}
+  f+=prev;prev=(m<=3)?e.rev/3*.2:0;
+  if(m==3)f+=e.salv;if(m==1&&w)f+=n*price*ant-200;if(m==6&&w)f+=n*price*(1-ant);
+  cum+=f;out.push(cum)}
+ return out}
+function run(){
+ const xc=+$('xc').value||0,xp=+$('xp').value||0,i=+$('esc').value,tasa=+$('tasa').value,price=+$('price').value,pw=+$('win').value/100,ant=+$('ant').value/100,f=+$('alg').value||1,df=Math.pow(1+tasa,-90/365);
+ $('pv').textContent='$'+price.toFixed(2);$('wv').textContent=Math.round(pw*100)+'%';$('av').textContent=Math.round(ant*100)+'%';
+ const S=draws(f),cc=s=>({win:s.w<pw,n:s.n,price,df});
+ const A=st(S.map(s=>ev(s,xc,xp).u)),B=st(S.map(s=>ev(s,xc,xp,cc(s)).u));
+ const slope=S.reduce((p,s)=>p+(s.w<pw?s.n*df:0),0)/N,diff=B.m-A.m,pmin=slope>0?price-diff/slope:NaN;
+ // KPIs
+ $('kp').innerHTML=`<div class="k"><span>👕 Camisetas</span><b>${xc.toLocaleString('en-US')}</b></div><div class="k"><span>👖 Pantalones</span><b>${xp.toLocaleString('en-US')}</b></div>
+ <div class="k"><span>💰 Utilidad esperada</span><b>${$$(A.m)}</b></div><div class="k"><span>📉 Peor 5%</span><b>${$$(A.p5)}</b></div>
+ <div class="k"><span>Riesgo de pérdida</span><b>${pc(A.pl)}</b></div><div class="k"><span>CVaR 10% (cola)</span><b>${$$(A.cv)}</b></div>`;
+ // histogram
+ const lo=A.a[0],hi=A.a[N-1],bw=(hi-lo)/14,h=Array(14).fill(0);A.a.forEach(x=>h[Math.min(13,Math.floor((x-lo)/bw))]++);
+ const mx=Math.max(...h);$('hist').innerHTML=h.map((c,j)=>`<div class="${lo+bw*(j+1)<=0?'n':''}" style="height:${c/mx*100}%"></div>`).join('');
+ $('h0').textContent=$$(lo);$('h1').textContent=$$(hi);
+ // contrato
+ const ok=diff>0;
+ $('ban').innerHTML=`<div class="ban ${ok?'ok':'ko'}">${ok?'🟢 SÍ CONVIENE PARTICIPAR':'🔴 NO PARTICIPAR'} a $${price.toFixed(2)} por conjunto<small>Valor esperado de participar: ${$$(diff)} por trimestre. Precio mínimo para que convenga: <b>$${isFinite(pmin)?pmin.toFixed(2):'—'}</b> por conjunto.</small></div>`;
+ const rw=(n,a,b,fm)=>`<tr><td>${n}</td><td>${fm(a)}</td><td>${fm(b)}</td></tr>`;
+ $('ct').innerHTML=`<tr><th>Indicador</th><th>Sin contrato</th><th>Con contrato</th></tr>`+rw('Utilidad media',A.m,B.m,$$)+rw('Peor 5%',A.p5,B.p5,$$)+rw('CVaR 10%',A.cv,B.cv,$$)+rw('Peor caso',A.a[0],B.a[0],$$)+rw('Prob. de pérdida',A.pl,B.pl,pc)+`<tr class="hl"><td>Decisión</td><td colspan="2" style="text-align:right">${ok?'🟢 Participar':'🔴 No participar'}</td></tr>`;
+ // caja
+ const s0=scen(i,f),c0=cash(s0,xc,xp,0,0,price),c1=cash(s0,xc,xp,1,ant,price),nd=a=>Math.max(0,-Math.min(...a));
+ $('cashk').innerHTML=`<div class="k"><span>Financiamiento máx. sin contrato</span><b>${$$(nd(c0))}</b></div><div class="k"><span>Con contrato (anticipo ${Math.round(ant*100)}%)</span><b>${$$(nd(c1))}</b></div>`;
+ const all=[0,...c0,...c1],a0=Math.min(...all),a1=Math.max(...all),X=m=>30+m*50,Y=v=>10+(a1-v)/(a1-a0||1)*120,
+ pt=a=>[0,...a].map((v,m)=>X(m)+','+Y(v)).join(' ');
+ $('cash').innerHTML=`<line x1="30" x2="330" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--mu)" stroke-dasharray="3"/><polyline fill="none" stroke="var(--ok)" stroke-width="2.5" points="${pt(c0)}"/><polyline fill="none" stroke="var(--ko)" stroke-width="2.5" points="${pt(c1)}"/>`+
+ [0,1,2,3,4,5,6].map(m=>`<text x="${X(m)}" y="146" font-size="10" text-anchor="middle" fill="var(--mu)">M${m}</text>`).join('')+
+ `<text x="2" y="${Y(a1)+4}" font-size="9" fill="var(--mu)">${$$(a1)}</text><text x="2" y="${Y(a0)+4}" font-size="9" fill="var(--mu)">${$$(a0)}</text>`;
+ // escenarios
+ const nm=['Pesimista','Base','Optimista'];
+ $('sc').innerHTML=`<tr><th>Tu plan por escenario</th><th>Utilidad</th></tr>`+nm.map((n,j)=>{const u=ev(scen(j,f),xc,xp).u;return`<tr class="${j==i?'hl':''}"><td>${n}</td><td class="${cl(u)}">${$$(u)}</td></tr>`}).join('');
+ // planes
+ const P=[['Pesimista',1200,750],['Base',1560,990],['Optimista',2100,1350],['Máx. utilidad media',1680,1050],['Recomendado',1590,990]];
+ if(!P.some(p=>p[1]==xc&&p[2]==xp))P.push(['Tu plan',xc,xp]);
+ const T=P.map(p=>({n:p[0],c:p[1],p:p[2],s:st(S.map(s=>ev(s,p[1],p[2]).u))})),bm=Math.max(...T.map(t=>t.s.m)),b5=Math.max(...T.map(t=>t.s.p5));
+ $('pl').innerHTML=`<tr><th>Plan</th><th>Cam.</th><th>Pant.</th><th>Media</th><th>Peor 5%</th><th>P(pérdida)</th></tr>`+T.map(t=>`<tr class="${t.s.p5==b5?'hl':''}"><td>${t.n}</td><td>${t.c}</td><td>${t.p}</td><td>${$$(t.s.m)}${t.s.m==bm?' ★':''}</td><td>${$$(t.s.p5)}${t.s.p5==b5?' ★':''}</td><td>${pc(t.s.pl)}</td></tr>`).join('');
+ // recomendación
+ $('rec').innerHTML=`<ul><li>Producir <b>${xc.toLocaleString('en-US')} camisetas y ${xp.toLocaleString('en-US')} pantalones</b>: utilidad esperada ${$$(A.m)} por trimestre y, en el 5% de los peores casos, ${$$(A.p5)}.</li>
+ <li>Contrato a $${price.toFixed(2)}: ${ok?'aporta valor esperado de '+$$(diff)+' y puede ofertarse.':'resta '+$$(-diff)+' por trimestre; no conviene a este precio.'}${isFinite(pmin)&&!ok?` Renegociar hacia $${pmin.toFixed(2)} por conjunto.`:''}</li>
+ <li>Con el contrato, la cooperativa necesitaría financiar hasta ${$$(nd(c1))} antes de cobrar a 90 días${ant<.5?'; un anticipo del 50% o más reduce mucho esa necesidad':''}.</li>
+ <li>★ marca el mejor plan por utilidad media y por peor 5%. Los precios, la demanda y los costos variables mueven más la utilidad que la capacidad.</li></ul>`}
+['xc','xp','esc','tasa','price','win','ant','alg'].forEach(i=>$(i).addEventListener('input',run));
+$('go').onclick=()=>{seed=Math.floor(Math.random()*1e9);run()};
+run();
+</script></body></html>
